@@ -14,13 +14,18 @@ pgchecker : latest
 
 ### Server 
 OpenLDAP Primary1
+* OS : Rocky 8.4
 * IP : 10.0.0.10
 
 OpenLDAP Primary2
+* OS : Rocky 8.4
 * IP : 10.0.0.20
 
 OpenLDAP Client
+* OS : CentOS 7.10
 * IP : 10.0.0.30
+
+* OS : Rocky 8.4 
 * IP : 10.0.0.40
 
 
