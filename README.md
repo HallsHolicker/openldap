@@ -31,3 +31,7 @@ openssl req -x509 -nodes -days 365 \
   -keyout /etc/pki/tls/HallsHolicker-private.key \
   -out /etc/pki/tls/HallsHolicker-private.crt
 '''
+
+
+## Run
+ansible-playbook -i inventories/opneldap/hosts OpenLdapInstall.yml -k
