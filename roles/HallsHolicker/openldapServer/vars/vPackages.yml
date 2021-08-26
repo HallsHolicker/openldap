@@ -1,0 +1,23 @@
+vLdapServerPackages:
+  - cyrus-sasl-devel
+  - libtool
+  - autoconf
+  - libtool-ltdl-devel
+  - openssl-devel
+  - libdb-devel
+  - tar
+  - perl-devel
+  - wget
+  - gcc
+  - gcc-c++
+  - perl
+  - perl-devel
+  - vim
+  - tar
+  - rsyslog
+
+vLdapServerPgchekerPackages:
+  - java-11-openjdk-devel
+  - git
+  - automake
+  - libdb-devel

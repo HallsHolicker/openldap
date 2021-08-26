@@ -1,0 +1,11 @@
+dn: ou=system,{{ vLdapConfig.vLdapBaseDn }}
+objectClass: organizationalUnit
+objectClass: top
+ou: system
+
+dn: cn=readonly,ou=system,{{ vLdapConfig.vLdapBaseDn }}
+objectClass: organizationalRole
+objectClass: simpleSecurityObject
+cn: readonly
+userPassword: {{ vLdapConfig.vBindDnPwEncypt }}
+description: Bind DN user for LDAP Operations

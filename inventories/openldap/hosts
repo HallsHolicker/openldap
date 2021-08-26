@@ -1,0 +1,13 @@
+[openldapPrimary]
+10.0.0.10 ansible_user=root
+
+[openldapReplica]
+10.0.0.20 ansible_user=root
+
+[openldapServer:chilren]
+openldapPrimary
+openldapReplica
+
+[openldapClient]
+10.0.0.30 ansible_user=root
+10.0.0.40 ansible_user=root

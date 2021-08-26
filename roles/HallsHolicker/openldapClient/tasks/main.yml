@@ -1,0 +1,7 @@
+- include_vars: vPackages.yml
+- include_vars: vLdap.yml
+
+- import_tasks: SettingLdapClientCentOS.yml
+  when: 
+    - ansible_distribution == 'Redhat' or ansible_distribution == 'CentOS' or ansible_distribution == "Rocky"
+    - "'openldapServer' not in group_names"

@@ -1,0 +1,42 @@
+
+- name: Find Backup Database file
+  local_action: command find ./ -type f -name "backUpDatabase"
+  register: PrimarybackUpDatabasePath
+
+- name: Find Backup Data file
+  local_action: command find ./ -type f -name "backUpData"
+  register: PrimarybackUpDataPath
+
+- name: Import backup database to Replica
+  copy:
+    src: "{{ PrimarybackUpDatabasePath.stdout }}"
+    dest: /etc/openldap/ldif/openldap-config.ldif
+
+- name: Import backup data to Replica
+  copy:
+    src: "{{ PrimarybackUpDataPath.stdout }}"
+    dest: /etc/openldap/ldif/openldap-data.ldif
+
+- name: Restore OpenLDAP Database
+  shell: "slapadd -b cn=config -l /etc/openldap/ldif/openldap-config.ldif -F /etc/openldap/slapd.d/"
+
+- name: Restore OpenLDAP 
+  shell: "slapadd -n 1 -l /etc/openldap/ldif/openldap-data.ldif -F /etc/openldap/slapd.d/"
+
+- name: Change owner /etc/openldap/slapd.d
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: yes
+    owner: ldap
+    group: ldap
+  with_items:
+    - /etc/openldap/slapd.d
+    - /var/lib/openldap
+
+- name: Enalble & Start slapd systemd service
+  systemd:
+    name: slapd
+    enabled: true
+    state: restarted
+    daemon_reload: true

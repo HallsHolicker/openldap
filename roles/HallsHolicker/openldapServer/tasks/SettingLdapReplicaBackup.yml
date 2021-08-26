@@ -1,0 +1,13 @@
+- name: Backup Primary OpenLDAP database
+  shell: "slapcat -b cn=config"
+  register: backUpDatabase
+
+- name: Save Backup Database
+  local_action: copy content={{ backUpDatabase.stdout }} dest=./backUpDatabase
+
+- name: Backup Primary OpenLDAP data
+  shell: "slapcat"
+  register: backUpData
+
+- name: Save Backup Database
+  local_action: copy content={{ backUpData.stdout }} dest=./backUpData

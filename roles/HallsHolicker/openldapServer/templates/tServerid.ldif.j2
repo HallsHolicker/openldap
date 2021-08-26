@@ -1,0 +1,5 @@
+dn: cn=config
+changetype: modify
+add: olcServerID
+olcServerID: 1 ldap://{{ vLdapConfig.vMaster1IpAddress }}
+olcServerID: 2 ldap://{{ vLdapConfig.vMaster2IpAddress }}

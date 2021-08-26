@@ -1,0 +1,27 @@
+- name: Reload sysctl.conf
+  command: /sbin/sysctl -p
+  ignore_errors: true
+
+- name: Restart chronyd
+  systemd:
+    name: chronyd
+    state: restarted
+  become: true
+
+- name: Restart crond
+  systemd:
+    name: chrond
+    state: restarted
+  become: true
+
+- name: Restart sshd
+  systemd:
+    name: sshd
+    state: restarted
+  become: true
+
+- name: Restart slapd
+  systemd:
+    name: slapd
+    state: restarted
+  become: true

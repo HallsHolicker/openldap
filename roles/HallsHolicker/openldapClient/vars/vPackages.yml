@@ -1,0 +1,19 @@
+vDefaultPackages:
+  - gcc-c++
+  - perl
+  - vim
+  - rsyslog
+  - gcc
+  - tar
+
+vLdapClientOs7Packages:
+  - sssd
+  - sssd-tools
+  - oddjob-mkhomedir
+
+vLdapClientOs8Packages:
+  - openldap-clients
+  - sssd
+  - sssd-ldap
+  - oddjob-mkhomedir
+  - openssl-perl

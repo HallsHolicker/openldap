@@ -1,0 +1,7 @@
+- name: Gather facts
+  hosts: all
+  gather_facts: False
+  tasks:
+    - name: Gather minimal facts
+      setup:
+        filter: ansible_*

@@ -1,0 +1,28 @@
+dn: olcDatabase={1}mdb,cn=config
+changetype: modify
+add: olcSyncrepl
+olcSyncrepl:
+  rid=003
+  provider=ldap://{{ vLdapConfig.vMaster1IpAddress }}
+  binddn="cn=manager,{{ vLdapConfig.vLdapBaseDn }}"
+  bindmethod=simple
+  credentials="{{ vLdapConfig.vRootPw }}"
+  searchbase="{{ vLdapConfig.vLdapBaseDn }}"
+  type=refreshAndPersist
+  timeout=0
+  network-timeout=0
+  retry="30 5 300 +"
+olcSyncrepl:
+  rid=004
+  provider=ldap://{{ vLdapConfig.vMaster2IpAddress }}
+  binddn="cn=Manager,{{ vLdapConfig.vLdapBaseDn }}"
+  bindmethod=simple
+  credentials="{{ vLdapConfig.vRootPw }}"
+  searchbase="{{ vLdapConfig.vLdapBaseDn }}"
+  type=refreshAndPersist
+  timeout=0
+  network-timeout=0
+  retry="30 5 300 +"
+-
+add: olcMirrorMode
+olcMirrorMode: TRUE

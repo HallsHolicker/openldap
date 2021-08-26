@@ -1,0 +1,4 @@
+dn: cn=pwdefault,ou=pwpolicy,{{ vLdapConfig.vLdapBaseDn }}
+changetype: modify
+add: pwdCheckModule
+pwdCheckModule: pqchecker.so

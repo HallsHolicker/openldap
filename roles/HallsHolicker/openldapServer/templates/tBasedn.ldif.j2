@@ -1,0 +1,19 @@
+dn: {{ vLdapConfig.vLdapBaseDn }}
+objectClass: top
+objectClass: dcObject
+objectclass: organization
+o: HallsHolicker
+dc: example
+
+dn: cn=Manager,{{ vLdapConfig.vLdapBaseDn }}
+objectClass: organizationalRole
+cn: Manager
+description: Directory Manager
+
+dn: ou=ServerAdmin,{{ vLdapConfig.vLdapBaseDn }}
+objectClass: organizationalUnit
+ou: ServerAdmin
+
+dn: ou=NetworkAdmin,{{ vLdapConfig.vLdapBaseDn }}
+objectClass: organizationalUnit
+ou: NetworkAdmin

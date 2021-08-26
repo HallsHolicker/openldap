@@ -1,0 +1,86 @@
+- name: Find Backup Database file
+  local_action: command find ./ -type f -name "backUpDatabase"
+  register: PrimarybackUpDatabasePath
+  run_once: true
+
+- name: Find Backup Data file
+  local_action: command find ./ -type f -name "backUpData"
+  register: PrimarybackUpDataPath
+  run_once: true
+
+- name: Delete Backup Database file
+  local_action: file path="{{ PrimarybackUpDatabasePath.stdout }}" state=absent
+  run_once: true
+
+- name: Delete Backup Data file
+  local_action: file path="{{ PrimarybackUpDataPath.stdout }}" state=absent
+  run_once: true
+
+- name: Import syncprov.ldif
+  copy:
+    src: syncprov.ldif
+    dest: /etc/openldap/ldif/syncprov.ldif
+
+- name: Update syncprov to OpenLDAP database
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/ldif/syncprov.ldif"
+
+- name: Import server-id.ldif
+  template:
+    src: tServerid.ldif.j2
+    dest: /etc/openldap/ldif/server-id.ldif
+
+- name: Update server-id to OpenLDAP database
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/ldif/server-id.ldif"
+
+- name: Import suncprov-conf.ldif
+  copy:
+    src: syncprov-conf.ldif
+    dest: /etc/openldap/ldif/syncprov-conf.ldif
+
+- name: Update server-id to OpenLDAP database
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/ldif/syncprov-conf.ldif"
+
+- name: Import rootdn.ldif
+  template:
+    src: tReplicaterootdn.ldif.j2
+    dest: /etc/openldap/ldif/rootdn.ldif
+
+- name: Update server-id to OpenLDAP database
+  shell: "ldapmodify -Y EXTERNAL -H ldapi:/// -f /etc/openldap/ldif/rootdn.ldif"
+
+- name: Import replication.ldif
+  template:
+    src: tReplication.ldif.j2
+    dest: /etc/openldap/ldif/replication.ldif
+
+- name: Update server-id to OpenLDAP database
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/ldif/replication.ldif"
+
+- name: Import db-syncf.ldif
+  copy:
+    src: db-sync.ldif
+    dest: /etc/openldap/ldif/db-sync.ldif
+
+- name: Update server-id to OpenLDAP database
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/ldif/db-sync.ldif"
+
+- name: Import indexes.ldif
+  copy:
+    src: indexes.ldif
+    dest: /etc/openldap/ldif/indexes.ldif
+
+- name: Update server-id to OpenLDAP database
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/ldif/indexes.ldif"
+
+- name: Import db-options.ldif
+  template:
+    src: tDboptions.ldif.j2
+    dest: /etc/openldap/ldif/db-options.ldif
+
+- name: Update server-id to OpenLDAP database
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/ldif/db-options.ldif"
+
+- name: Restart slapd
+  systemd:
+    name: slapd
+    state: restarted

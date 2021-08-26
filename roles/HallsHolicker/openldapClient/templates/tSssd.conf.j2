@@ -1,0 +1,33 @@
+[sssd]
+services = nss, pam, autofs, sudo
+config_file_version = 2
+domains = example.com
+
+[sudo]
+
+[nss]
+homedir_substring = /home
+
+[pam]
+offline_credentials_expiration = 60
+
+[domain/example.com]
+ldap_id_use_start_tls = True
+cache_credentials = false
+ldap_search_base = {{ vLdapConfig.vLdapServerOu }},{{ vLdapConfig.vLdapBaseDn }}
+id_provider = ldap
+autofs_provider = ldap
+auth_provider = ldap
+chpass_provider = ldap
+access_provider = ldap
+sudo_provider = ldap
+ldap_uri = {{ vLdapConfig.vLdapServer }}
+ldap_default_bind_dn = cn=readonly,ou=system,{{ vLdapConfig.vLdapBaseDn }}
+ldap_default_authtok = {{ vLdapConfig.vBindDnPw }}
+ldap_tls_cacertdir = {{ vLdapConfig.vLdapCertsDir }}
+ldap_tls_reqcert = allow
+ldap_search_timeout = 50
+ldap_network_timeout = 60
+ldap_sudo_search_base = ou=SUDOers,{{ vLdapConfig.vLdapBaseDn }}
+ldap_access_order = filter
+ldap_access_filter = (objectClass=posixAccount)

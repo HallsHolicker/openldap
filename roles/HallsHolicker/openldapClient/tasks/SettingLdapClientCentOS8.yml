@@ -1,0 +1,50 @@
+- name: Install SSSD
+  yum:
+    name: "{{ vLdapClientOs8Packages }}"
+    state: present
+
+- name: Make Directory {{ vLdapConfig.vLdapCertsDir }}
+  file:
+    path: "{{ vLdapConfig.vLdapCertsDir }}"
+    state: directory
+
+- name: Configure ldap.conf
+  lineinfile:
+    path: /etc/openldap/ldap.conf
+    line: "{{ item }}"
+    insertafter: EOF
+  with_items:
+    - "BASE  {{ vLdapConfig.vLdapServerOu }},{{ vLdapConfig.vLdapBaseDn }}"
+    - "URI  {{ vLdapConfig.vLdapServer }}"
+    - "TLS_CACERTDIR  {{ vLdapConfig.vLdapCertsDir }}"
+    - "sudoers_base ou=SUDOers,{{ vLdapConfig.vLdapBaseDn }}"
+
+- name: Update sssd.conf
+  template:
+    src: tSssd.conf.j2
+    dest: /etc/sssd/sssd.conf
+
+- name: Change mode & owner /etc/sssd/sssd.conf
+  file:
+    path: /etc/sssd/sssd.conf
+    mode: 0600
+    owner: root
+    group: root
+
+- name: Configure mkhomedir to auto create home directories
+  command: "authselect select sssd with-mkhomedir --force"
+
+- name: Setting nsswitch.conf
+  lineinfile:
+    path: /etc/nsswitch.conf
+    line: "sudoers: sss ldap files"
+    insertafter: EOF
+
+- name: Start & Enable sssd, oddjobd
+  systemd:
+    name: "{{ item }}"
+    state: restarted
+    enabled: true
+  with_items:
+    - sssd
+    - oddjobd

@@ -1,0 +1,98 @@
+- name: Enable git repo at centos7
+  yum:
+    name: "http://opensource.wandisco.com/centos/7/git/x86_64/wandisco-git-release-7-2.noarch.rpm"
+    state: present
+  when:
+    - ansible_distribution_major_version == '7'
+
+- name: Install OpenLDAP dependency Packages Usage Yum
+  yum:
+    name: "{{ vLdapServerPgchekerPackages }}"
+    state: present
+    enablerepo: WANdisco-git
+  when:
+    - ansible_distribution_major_version == '7'
+
+- name: Install OpenLDAP dependency Packages Usage Dnf
+  dnf:
+    name: "{{ vLdapServerPgchekerPackages }}"
+    state: present
+  when:
+    - ansible_distribution_major_version == '8'
+
+- name: Git clone pgchecker
+  git:
+    repo: "https://bitbucket.org/ameddeb/pqchecker.git"
+    dest: /usr/local/{{ vMainPath }}/Download/pgchecker
+
+- name: Find JAVA HOME
+  shell: "which javac | xargs readlink -f | awk -F'/' '{print \"/\"$2\"/\"$3\"/\"$4\"/\"$5}'"
+  register: javahome
+
+- name: Autoreconf pgchecker
+  shell: "autoreconf -f -i"
+  args:
+    chdir: /usr/local/{{ vMainPath }}/Download/pgchecker
+
+- name: Configure pgchecker
+  shell: "./configure LDAPSRC=/usr/local/{{ vMainPath }}/Download/openldap-{{ vLdapConfig.vVersion }} JAVAHOME={{ javahome.stdout }} PARAMDIR=/etc/openldap/pgchecker libdir=/usr/libexec/openldap"
+  args:
+    chdir: /usr/local/{{ vMainPath }}/Download/pgchecker
+    
+- name: Install pgchecker
+  shell: "make install /etc/openldap/pgchecker"
+  args:
+    chdir: /usr/local/{{ vMainPath }}/Download/pgchecker
+    
+- name: Change pgcheck owner/groups
+  file:
+    path: "/etc/openldap/slapd.d"
+    state: directory
+    recurse: yes
+    owner: ldap
+    group: ldap
+
+- name: Import pqparams.dat
+  template:
+    src: tPqparams.dat.j2
+    dest: /etc/openldap/pgchecker/pqparams.dat
+
+- name: Import OpenLDAP load-ppolicy-mod ldif
+  copy:
+    src: load-ppolicy-mod.ldif
+    dest: /etc/openldap/ldif/load-ppolicy-mod.ldif
+
+- name: Load ppolicy module
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/ldif/load-ppolicy-mod.ldif"
+
+- name: Import OpenLDAP pwpolicyou ldif
+  template:
+    src: tPwpolicyou.ldif.j2
+    dest: /etc/openldap/ldif/pwpolicyou.ldif
+
+- name: Update OpenLDAP pwpolicyou
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/ldif/pwpolicyou.ldif"
+
+- name: Import OpenLDAP pwpolicyoverlay ldif
+  template:
+    src: tPwpolicyoverlay.ldif.j2
+    dest: /etc/openldap/ldif/pwpolicyoverlay.ldif
+
+- name: Update OpenLDAP pwpolicyoverlay
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/ldif/pwpolicyoverlay.ldif"
+
+- name: Import OpenLDAP ldap-pwpolicies ldif
+  template:
+    src: tLdappwpolicies.ldif.j2
+    dest: /etc/openldap/ldif/ldap-pwpolicies.ldif
+
+- name: Update OpenLDAP ldap-pwpolicies
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/ldif/ldap-pwpolicies.ldif"
+
+- name: Import mod-ppolicy ldif
+  template:
+    src: tModppolicy.ldif.j2
+    dest: /etc/openldap/ldif/mod-ppolicy.ldif
+
+- name: Update OpenLDAP mod-ppolicy
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/ldif/mod-ppolicy.ldif"

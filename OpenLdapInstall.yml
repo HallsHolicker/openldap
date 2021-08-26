@@ -1,0 +1,10 @@
+- name: Gather facts
+  tags: always
+  import_playbook: facts.yml
+
+- hosts: all
+  gather_facts: false
+  any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
+  roles:
+    - role: HallsHolicker/openldapServer
+    - role: HallsHolicker/openldapClient

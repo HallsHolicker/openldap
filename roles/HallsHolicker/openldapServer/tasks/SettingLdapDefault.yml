@@ -1,0 +1,181 @@
+- name: Enable Rocky7 epel Repo
+  copy:
+    src: epel-el7.repo
+    dest: /etc/yum.repos.d/epel-el7.repo
+
+- name: Install OpenLDAP dependency Packages Usage Yum
+  yum:
+    name: "{{ vLdapServerPackages }}"
+    state: present
+  when:
+    - ansible_distribution_major_version == '7'
+
+- name: Install OpenLDAP dependency Packages Usage Dnf
+  dnf:
+    name: "{{ vLdapServerPackages }}"
+    state: present
+  when:
+    - ansible_distribution_major_version == '8'
+
+- name: Install OpenLDAP dependency Packages Usage Yum
+  yum:
+    name: "{{ item }}"
+    state: present
+    enablerepo: epel-el7
+  with_items:
+    - wiredtiger
+    - wiredtiger-devel
+  when:
+    - ansible_distribution_major_version == '7'
+
+- name: Install OpenLDAP dependency Packages Usage Dnf
+  dnf:
+    name: "{{ item }}"
+    state: present
+    enablerepo: epel-el7
+  with_items:
+    - wiredtiger
+    - wiredtiger-devel
+  when:
+    - ansible_distribution_major_version == '8'
+
+- name: Create HallsHolicker Direcroty
+  file:
+    path: /usr/local/{{ vMainPath }}/{{ item }}
+    state: directory
+    recurse: yes
+  with_items:
+    - Download
+    - Conf
+    - Compile
+
+- name: Create OpelLDAP System Account Group
+  group:
+    name: ldap
+    state: present
+    gid: 55
+
+- name: Create OpelLDAP System Account User
+  user:
+    name: ldap
+    state: present
+    uid: 55
+    group: ldap
+    home: /var/lib/openldap
+    shell: /usr/sbin/nologin
+
+- name: Download OpenLDAP
+  get_url:
+    url: https://www.openldap.org/software/download/OpenLDAP/openldap-release/openldap-{{ vLdapConfig.vVersion }}.tgz
+    dest: /usr/local/{{ vMainPath }}/Download/openldap-{{ vLdapConfig.vVersion }}.tgz
+
+- name: Unarchive OpenLDAP
+  unarchive:
+    src: /usr/local/{{ vMainPath }}/Download/openldap-{{ vLdapConfig.vVersion }}.tgz
+    dest: /usr/local/{{ vMainPath }}/Download/
+    remote_src: true
+
+- name: Configure OpenLDAP
+  shell: "./configure --prefix=/usr --sysconfdir=/etc --disable-static --enable-debug --with-tls=openssl --with-cyrus-sasl --enable-dynamic --enable-crypt --enable-spasswd --enable-slapd --enable-modules --enable-rlookups --enable-backends=mod --disable-ndb --disable-sql --disable-shell --disable-bdb --disable-hdb --enable-overlays=mod --enable-ppolicy --enable-otp"
+  args:
+    chdir: /usr/local/{{ vMainPath }}/Download/openldap-{{ vLdapConfig.vVersion }}
+
+- name: Run make depend to build OpenLDAP dependencies
+  shell: make depend
+  args:
+    chdir: /usr/local/{{ vMainPath }}/Download/openldap-{{ vLdapConfig.vVersion }}
+
+- name: Compile OpenLDAP
+  make:
+    chdir: /usr/local/{{ vMainPath }}/Download/openldap-{{ vLdapConfig.vVersion }}
+
+- name: Install OpenLDAP
+  make:
+    chdir: /usr/local/{{ vMainPath }}/Download/openldap-{{ vLdapConfig.vVersion }}
+    target: install
+
+- name: Create OpenLDAP Database directories
+  file:
+    path: "/var/lib/openldap"
+    state: directory
+    recurse: yes
+    owner: ldap
+    group: ldap
+
+- name: Create OpenLDAP Database directories
+  file:
+    path: "/etc/openldap/slapd.d"
+    state: directory
+    recurse: yes
+    owner: root
+    group: ldap
+
+- name: Create OpenLDAP Log directories
+  file:
+    path: "/var/log/openldap"
+    state: directory
+    recurse: yes
+    owner: ldap
+    group: ldap
+
+- name: Create OpenLDAP Database directories
+  file:
+    path: "/etc/openldap/slapd.conf"
+    state: file
+    mode: 0640
+
+- name: Make ldif directory
+  file:
+    path: /etc/openldap/ldif
+    state: directory
+    recurse: yes 
+
+- name: Copy TLS cert
+  copy:
+    src: "{{ item }}"
+    dest: /etc/pki/tls/
+  with_items:
+    - HallsHolicker-private.key
+    - HallsHolicker-private.crt
+
+- name: Change owner to TLS cert
+  file:
+    path: /etc/pki/tls/{{ item }}
+    state: file
+    owner: ldap
+    group: ldap
+  with_items:
+    - HallsHolicker-private.key
+    - HallsHolicker-private.crt
+
+- name: Clear directories
+  shell: "rm -rf {{ item }}"
+  with_items:
+    - /etc/openldap/slapd.d/*
+    - /var/lib/openldap/*
+
+- name: Create a slapd systemd service
+  template:
+    src: tSlapd.service.j2
+    dest: /etc/systemd/system/slapd.service
+
+- name: Update CA Location for OpenLDAP
+  lineinfile:
+    dest: /etc/openldap/ldap.conf
+    line: "{{ item }}"
+    insertafter: EOF
+  with_items:
+    - "TLS_CACERT     /etc/pki/tls/HallsHolicker-private.crt"
+    - "TLS_REQCERT    allow"
+
+- name: Import Service ldap/ldaps Into Firewalld
+  become: true
+  firewalld:
+    service: "{{ item }}"
+    zone: public
+    permanent: true
+    immediate: true
+    state: enabled
+  with_items:
+    - ldap
+    - ldaps

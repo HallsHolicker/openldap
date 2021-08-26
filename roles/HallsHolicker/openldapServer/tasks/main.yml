@@ -1,0 +1,42 @@
+- include_vars: vPackages.yml
+- include_vars: vLdap.yml
+
+- import_tasks: SettingLdapDefault.yml
+  when: 
+    - ansible_distribution == "Rocky"
+
+- import_tasks: SettingLdapPrimary.yml
+  when: 
+    - ansible_distribution == "Rocky"
+    - "'openldapPrimary' in group_names"
+
+- import_tasks: SettingLdapPpolicy.yml
+  when: 
+    - ansible_distribution == "Rocky"
+    - "'openldapPrimary' in group_names"
+
+- import_tasks: SettingLdapAuditlog.yml
+  when: 
+    - ansible_distribution == "Rocky"
+    - "'openldapPrimary' in group_names"
+
+- include_tasks: SettingLdapReplicaBackup.yml
+  when: 
+    - ansible_distribution == "Rocky"
+    - "'openldapPrimary' in group_names"
+    - openldapReplicaStatus
+
+- include_tasks: SettingLdapReplicaDefault.yml
+  when: 
+    - ansible_distribution == "Rocky"
+    - "'openldapReplica' in group_names"
+
+- include_tasks: SettingLdapReplica.yml
+  when: 
+    - ansible_distribution == "Rocky"
+    - openldapReplicaStatus
+
+- import_tasks: SettingLdapUser.yml
+  when: 
+    - ansible_distribution == "Rocky"
+    - "'openldapPrimary' in group_names"

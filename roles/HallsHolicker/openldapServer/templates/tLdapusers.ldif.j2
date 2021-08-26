@@ -1,0 +1,53 @@
+{% for User in vServerAdminUser %}
+dn: uid={{ User.id }},ou=ServerAdmin,{{ vLdapConfig.vLdapBaseDn }}
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+sn: {{ User.id }}
+givenName: {{ User.id }}
+cn: {{ User.id }}
+displayName: {{ User.id }}
+uidNumber: {{ User.uid }}
+gidNumber: 1000
+gecos: {{ User.id }}
+userPassword: {{ User.passwd }}
+loginShell: /bin/bash
+homeDirectory: /home/{{ User.id }}
+shadowExpire: -1
+shadowFlag: 0
+shadowWarning: 7
+shadowMin: 0
+shadowMax: 99999
+shadowLastChange: 0
+
+{% endfor %}
+{% for User in vNetworkAdminUser %}
+dn: uid={{ User.id }},ou=NetworkAdmin,{{ vLdapConfig.vLdapBaseDn }}
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+sn: {{ User.id }}
+givenName: {{ User.id }}
+cn: {{ User.id }}
+displayName: {{ User.id }}
+uidNumber: {{ User.uid }}
+gidNumber: 1000
+gecos: {{ User.id }}
+loginShell: /bin/bash
+homeDirectory: /home/{{ User.id }}
+shadowExpire: -1
+shadowFlag: 0
+shadowWarning: 7
+shadowMin: 0
+shadowMax: 99999
+shadowLastChange: 0
+
+{% endfor %}
+
+dn: cn=group,ou=ServerAdmin,{{ vLdapConfig.vLdapBaseDn }}
+objectClass: posixGroup
+cn: group
+gidNumber: 1000
+{% for User in vServerAdminUser %}
+memberUid: {{ User.id }}
+{% endfor %}

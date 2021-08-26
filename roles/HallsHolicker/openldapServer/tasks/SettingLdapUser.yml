@@ -1,0 +1,23 @@
+- name: Import ldapusers.ldif
+  template:
+    src: tLdapusers.ldif.j2
+    dest: /etc/openldap/ldif/ldapusers.ldif
+
+- name: Update OpenLDAP ldapusers
+  shell: "ldapadd -x -D {{ vLdapConfig.vLdapManager }} -w {{ vLdapConfig.vRootPw }} -H ldapi:/// -f /etc/openldap/ldif/ldapusers.ldif"
+
+- name: Import sudoersou.ldif
+  template:
+    src: tSudoersou.ldif.j2
+    dest: /etc/openldap/ldif/sudoersou.ldif
+
+- name: Update the OpenLDAP organization sudoers
+  shell: "ldapadd -x -D {{ vLdapConfig.vLdapManager }}-w {{ vLdapConfig.vRootPw }} -H ldapi:/// -f /etc/openldap/ldif/sudoersou.ldif"
+
+- name: Import Sudo User ldif
+  template:
+    src: tSudoers_defaults.ldif.j2
+    dest: /etc/openldap/ldif/sudoers_defaults.ldif
+
+- name: Update the OpenLDAP sudo users
+  shell: "ldapadd -x -D {{ vLdapConfig.vLdapManager }} -w {{ vLdapConfig.vRootPw }} -H ldapi:/// -f /etc/openldap/ldif/sudoers_defaults.ldif"

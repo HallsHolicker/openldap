@@ -1,0 +1,16 @@
+vMainPath: "HallsHolciker"
+
+vLdapConfig:
+  vVersion: 2.5.7
+  vDomain: example.com
+  vLdapBaseDn: dc=example,dc=com
+  vLdapServerOu : ou=ServerAdmin
+  vLdapNetworkOu : ou=NetworkAdmin
+  vLdapServer: "ldap://10.0.0.10/ ldap://10.0.0.20/"
+  vLdapCertsDir: "/etc/pki/tls/"
+  vRootPw: m1b2C50Forvi8uUkkLU9ppph
+  vRootPwEncypt: "{SSHA}esv0bEF3uoTwmweg3zooO7YPc8jN+AXC"
+  vBindDnPw: KvZa21U66OP7GFZpgmHImNGr
+  vBindDnPwEncypt: "{SSHA}/WhUlQwilgdfGsLJ+1v+Wrdhe+XLyZXF"
+  vMaster1IpAddress: "10.0.0.10"
+  vMaster2IpAddress: "10.0.0.20"

@@ -1,0 +1,69 @@
+- name: Import sudo.ldif
+  copy:
+    src: /usr/share/doc/sudo/schema.olcSudo
+    dest: /etc/openldap/schema/sudo.ldif
+    remote_src: true
+
+- name: Update /etc/openldap/slapd.ldif
+  copy:
+    src: slapd.ldif
+    dest: /etc/openldap/slapd.ldif
+    backup: true
+
+- name: Dry run to check the configuration
+  command: 'slapadd -n 0 -F /etc/openldap/slapd.d -l /etc/openldap/slapd.ldif -u'
+  
+- name: Execute to write the changes
+  command: 'slapadd -n 0 -F /etc/openldap/slapd.d -l /etc/openldap/slapd.ldif'
+
+- name: Change owner /etc/openldap/slapd.d
+  file:
+    path: "/etc/openldap/slapd.d"
+    state: directory
+    recurse: yes
+    owner: ldap
+    group: ldap
+
+- name: Enalble & Start slapd systemd service
+  systemd:
+    name: slapd
+    enabled: true
+    state: restarted
+    daemon_reload: true
+
+- name: Import OpenLDAP RootDN ldif
+  template:
+    src: tRootdn.ldif.j2
+    dest: /etc/openldap/ldif/rootdn.ldif
+
+- name: Update OpenLDAP RootPW
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/ldif/rootdn.ldif"
+
+- name: Import OpenLDAP BaseDN ldif
+  template:
+    src: tBasedn.ldif.j2
+    dest: /etc/openldap/ldif/basedn.ldif
+
+- name: Update OpenLDAP BaseDN
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/ldif/basedn.ldif"
+
+- name: Import TLS ldif
+  copy:
+    src: add-tls.ldif
+    dest: /etc/openldap/ldif/add-tls.ldif
+
+- name: Update TLS
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/ldif/add-tls.ldif"
+
+- name: Import BindDNUser.ldif
+  template:
+    src: tBindDNUser.ldif.j2
+    dest: /etc/openldap/ldif/BindDNUser.ldif
+
+- name: Update OpenLDAP BindDNUser
+  shell: "ldapadd -x -D {{ vLdapConfig.vLdapManager }} -w {{ vLdapConfig.vRootPw }} -H ldapi:/// -f /etc/openldap/ldif/BindDNUser.ldif"
+
+- name: Restart slapd
+  systemd:
+    name: slapd
+    state: restarted

@@ -1,0 +1,22 @@
+dn: cn=pwdefault,ou=pwpolicy,{{ vLdapConfig.vLdapBaseDn }}
+objectClass: person
+objectClass: pwdPolicyChecker
+objectClass: pwdPolicy
+cn: pwdefault
+sn: pwdefault
+pwdAttribute: userPassword
+pwdMinAge: 0
+pwdMaxAge: 7776000
+pwdInHistory: 2
+pwdCheckQuality: 2
+pwdMinLength: 12
+pwdExpireWarning: 6480000
+pwdGraceAuthNLimit: 5
+pwdLockout: TRUE
+pwdLockoutDuration: 0
+pwdMaxFailure: 3
+pwdFailureCountInterval: 0
+pwdReset: FALSE
+pwdMustChange: TRUE
+pwdAllowUserChange: TRUE
+pwdSafeModify: FALSE

@@ -1,0 +1,13 @@
+dn: cn=config
+changetype: modify
+add: olcTLSCACertificateFile
+olcTLSCACertificateFile: /etc/pki/tls/HallsHolicker-private.crt
+-
+add: olcTLSCertificateKeyFile
+olcTLSCertificateKeyFile: /etc/pki/tls/HallsHolicker-private.key
+-
+add: olcTLSCertificateFile
+olcTLSCertificateFile: /etc/pki/tls/HallsHolicker-private.crt
+-
+add: olcTLSVerifyClient
+olcTLSVerifyClient: never
