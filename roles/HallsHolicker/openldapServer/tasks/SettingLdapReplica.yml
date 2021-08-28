@@ -40,13 +40,13 @@
 - name: Update server-id to OpenLDAP database
   shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/ldif/syncprov-conf.ldif"
 
-- name: Import rootdn.ldif
+- name: Import replicaterootdn.ldif
   template:
     src: tReplicaterootdn.ldif.j2
-    dest: /etc/openldap/ldif/rootdn.ldif
+    dest: /etc/openldap/ldif/replicaterootdn.ldif
 
 - name: Update server-id to OpenLDAP database
-  shell: "ldapmodify -Y EXTERNAL -H ldapi:/// -f /etc/openldap/ldif/rootdn.ldif"
+  shell: "ldapmodify -Y EXTERNAL -H ldapi:/// -f /etc/openldap/ldif/replicaterootdn.ldif"
 
 - name: Import replication.ldif
   template:
