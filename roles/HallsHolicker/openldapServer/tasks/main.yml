@@ -20,6 +20,11 @@
     - ansible_distribution == "Rocky"
     - "'openldapPrimary' in group_names"
 
+- import_tasks: SettingLdapSudo.yml
+  when: 
+    - ansible_distribution == "Rocky"
+    - "'openldapPrimary' in group_names"
+
 - include_tasks: SettingLdapReplicaBackup.yml
   when: 
     - ansible_distribution == "Rocky"

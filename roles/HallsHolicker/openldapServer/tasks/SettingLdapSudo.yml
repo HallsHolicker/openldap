@@ -1,0 +1,7 @@
+- name: Import sudoersou.ldif
+  template:
+    src: tSudoersou.ldif.j2
+    dest: /etc/openldap/ldif/sudoersou.ldif
+
+- name: Update the OpenLDAP organization sudoers
+  shell: "ldapadd -x -D {{ vLdapConfig.vLdapManager }}-w {{ vLdapConfig.vRootPw }} -H ldapi:/// -f /etc/openldap/ldif/sudoersou.ldif"
